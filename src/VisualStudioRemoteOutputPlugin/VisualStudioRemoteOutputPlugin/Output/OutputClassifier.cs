@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
+using VisualStudioRemoteOutputPlugin.Network;
 using VisualStudioRemoteOutputPlugin.Util;
 
 // ReSharper disable EmptyGeneralCatchClause
@@ -25,10 +27,15 @@ namespace VisualStudioRemoteOutputPlugin.Output
 
         public void Initialize(IClassificationTypeRegistryService registry, IClassificationFormatMapService formatMapService)
         {
+            
             if (Interlocked.CompareExchange(ref _initialized, 1, 0) == 1) return;
             try
             {
-                _classificationTypeRegistry = registry;
+                if (NetHost.Instance == null)
+                {
+                    var n = new NetHost();
+                }
+                    _classificationTypeRegistry = registry;
                 _formatMapService = formatMapService;
 
                 //Settings.SettingsUpdated += (sender, args) =>
@@ -51,7 +58,8 @@ namespace VisualStudioRemoteOutputPlugin.Output
                 var spans = new List<ClassificationSpan>();
                 var snapshot = span.Snapshot;
                 if (snapshot == null || snapshot.Length == 0) return spans;
-                
+
+                var netHost = NetHost.Instance;
 
                 var start = span.Start.GetContainingLine().LineNumber;
                 var end = (span.End - 1).GetContainingLine().LineNumber;
@@ -61,9 +69,13 @@ namespace VisualStudioRemoteOutputPlugin.Output
                     if (line == null) continue;
                     var snapshotSpan = new SnapshotSpan(line.Start, line.Length);
                     var text = line.Snapshot.GetText(snapshotSpan);
-                    if (string.IsNullOrEmpty(text)) continue;
-
-                    
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        netHost._send("\r\n");
+                        continue;
+                    }
+                    Debug.WriteLine("Foudn from host: " + text);
+                    netHost._send(text);
                 }
                 return spans;
             }

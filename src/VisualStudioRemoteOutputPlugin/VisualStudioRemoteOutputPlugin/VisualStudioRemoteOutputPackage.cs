@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.Win32;
+using VisualStudioRemoteOutputPlugin.Network;
 
 namespace VisualStudioRemoteOutputPlugin
 {
@@ -24,5 +25,10 @@ namespace VisualStudioRemoteOutputPlugin
     [InstalledProductRegistration("VisualStudioRemoteOutput", "Remote output for build and debug windows", "1.0")]
     public class VisualStudioRemoteOutputPackage : Package
     {
+        public VisualStudioRemoteOutputPackage()
+        {
+            var h = new NetHost();
+        }
+        
     }
 }

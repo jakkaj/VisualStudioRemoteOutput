@@ -51,6 +51,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Network\NetHost.cs" />
     <Compile Include="Output\OutputClassifier.cs" />
     <Compile Include="Output\OutputClassifierProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,9 +66,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="index.html" />
     <Content Include="Resources\VisualStudioRemoteOutputPackage.ico" />
-    <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
