@@ -3,23 +3,33 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+
 namespace VisualStudioRemoteOutputPlugin.Network
 {
     public class NetHost
     {
-        private Socket _socket;
-        private UdpClient _client;
-        public static  NetHost Instance { get; private set; }
+
+        private HttpClient _client;
+        private HttpClientHandler _httpHandler;
+
+        public static NetHost Instance { get; private set; }
 
         public NetHost()
         {
             Instance = this;
+
+            _httpHandler = new HttpClientHandler();
+
+            _client = new HttpClient(_httpHandler);
+            _client.Timeout = TimeSpan.FromSeconds(1);
+
             //NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             //foreach (NetworkInterface adapter in adapters)
             //{
@@ -37,9 +47,9 @@ namespace VisualStudioRemoteOutputPlugin.Network
 
             //var target = IPAddress.Parse("192.168.0.11");
             //var ep = new IPEndPoint(target, 15001);
-            var target = IPAddress.Parse("192.168.0.11");
-            var ep = new IPEndPoint(target, 15002);
-            _client = new UdpClient(ep);
+            //var target = IPAddress.Parse("192.168.0.11");
+            //var ep = new IPEndPoint(target, 15002);
+            //_client = new UdpClient(ep);
 
             //var c = new WebClient();
 
@@ -52,21 +62,18 @@ namespace VisualStudioRemoteOutputPlugin.Network
             //_socket.Connect(ep);
         }
 
-        public async void _send(string message)
+        public async void Send(string output)
         {
-            var target = IPAddress.Parse("192.168.0.11");
-          //  var epListen = new IPEndPoint(target, 2000);
-            var client = new UdpClient();
+            using (var message = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5050"))
+            {
+                var content = new StringContent(output, Encoding.UTF8, "text/plain");
+                message.Content = content;
 
-            var ep = new IPEndPoint(target, 20000);
-
-            var sendbuf = Encoding.ASCII.GetBytes(message);
-            client.Send(sendbuf, sendbuf.Length, ep);
-
-            //await Task.Delay(500);
-
-            client.Close();
-            // _socket.Send(sendbuf);
+                using (var result = await _client.SendAsync(message))
+                {
+                    var r = result.IsSuccessStatusCode;                    
+                }
+            }          
         }
     }
 }

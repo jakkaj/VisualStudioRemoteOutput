@@ -71,11 +71,11 @@ namespace VisualStudioRemoteOutputPlugin.Output
                     var text = line.Snapshot.GetText(snapshotSpan);
                     if (string.IsNullOrEmpty(text))
                     {
-                        netHost._send("\r\n");
+                        netHost.Send("\r\n");
                         continue;
                     }
                     Debug.WriteLine("Foudn from host: " + text);
-                    netHost._send(text);
+                    netHost.Send(text);
                 }
                 return spans;
             }
